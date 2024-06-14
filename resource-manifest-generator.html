@@ -1,0 +1,141 @@
+
+<!<!DOCTYPE HTML>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Resource Manifest Generator</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.css" rel="stylesheet" />
+    </head>
+    <script>
+        function generateManifest() {
+            const authorName = document.getElementById('author').value;
+
+            let authorChecker;
+
+            if (!document.getElementById('author').value) {
+                authorChecker = `${document.getElementById('description').value}`;
+            } else {
+                authorChecker = `${document.getElementById('description').value} by ${authorName}`;
+            }
+
+            const manifest = {
+                "format_version": 2,
+                "header": {
+                    "description": authorChecker,
+                    "name": document.getElementById('name').value,
+                    "uuid": generateUUID(),
+                    "version": [0,
+                        0,
+                        1],
+                    "min_engine_version": [1,
+                        20,
+                        20]
+                },
+                "modules": [{
+                    "description": authorChecker,
+                    "type": "resources",
+                    "uuid": generateUUID(),
+                    "version": [0,
+                        0,
+                        1]
+                }]
+            }
+            const manifestJsonString = JSON.stringify(manifest, null, 4);
+            document.getElementById('output').textContent = manifestJsonString;
+            return manifestJsonString;
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0,
+                v = c == 'x' ? r: (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+        function downloadManifest() {
+            const manifestJsonString = generateManifest();
+            const downloadCondition = document.getElementById('yellow-checkbox');
+
+            if (downloadCondition && downloadCondition.checked) {
+                download("manifest.json", manifestJsonString);
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('author').value = '';
+            document.getElementById('output').textContent = '';
+        }
+
+        function copyToClipboard() {
+            const outputElement = document.getElementById('output');
+            const textToCopy = outputElement.textContent;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            alert('Copied to clipboard!');
+        }
+
+    </script>
+    <style>
+        body {
+            background-image: url('https://media.discordapp.net/attachments/1142076733365944420/1142918031140454490/fondo.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
+    <body class="bg-gray-10₩">
+        <div class="container mx-auto p-8">
+            <h1 class="text-4xl font-bold mb-4 text-white">
+                <img src="https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/06e25de9d62612cec9e3d6462504cde1~c5_100x100.jpeg?lk3s=a5d48078&nonce=13144&refresh_token=d886fdf32304187877bfde755e638d95&x-expires=1718524800&x-signature=sEMPX%2FznpywT4jF%2BuFgVfLpOHJI%3D&shp=a5d48078&shcp=81f88b70" alt="Game Icon" class="inline-block w-16 h-16 mr-2">
+                Resource Manifest
+            </h1>
+
+            <label class="block mb-2 text-white" for="name">Name:</label>
+            <input class="w-full p-2 border rounded mb-2" type="text" id="name" required="">
+
+            <label class="block mb-2 text-white" for="description">Description:</label>
+            <input class="w-full p-2 border rounded mb-2" type="text" id="description">
+
+            <label class="block mb-2 text-white" for="author">Author:</label>
+            <input class="w-full p-2 border rounded mb-2" type="text" id="author">
+
+            <div class="flex items-center mr-4">
+                <input checked id="yellow-checkbox" type="checkbox" value="" class="w-4 h-4 text-yellow-400 bg-gray-100 border-gray-300 rounded focus:ring-yellow-500 dark:focus:ring-yellow-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label for="yellow-checkbox" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 text-white">Download File?</label>
+            </div>
+
+            <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-4" onclick="downloadManifest()">Generate Manifest</button>
+            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mt-4 ml-2" onclick="clearForm()">Clear</button>
+
+            <div class="bg-gray-200 p-4 mt-4 rounded" style="position: relative;">
+                <button id="copyButton" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded" onclick="copyToClipboard()" style="position: absolute; top: 0; right: 0;">Copy Clipboard</button>
+                <pre id="output" style="max-height: 500px; overflow-y: auto; margin-top: 30px;"></pre>
+            </div>
+        </div>
+    </body>
+</html>
